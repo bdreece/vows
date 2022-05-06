@@ -24,11 +24,14 @@
 
 package vows
 
-func Async[T any](fn func(*Promise[T])) Future[T] {
+func Async[T any](fn func(...any) T, args ...any) Future[T] {
 	c := make(chan T, 1)
 	p := Promise[T]{c}
 	f := Future[T]{c}
-	go fn(&p)
+	go func() {
+      ret := (fn)(args...)
+      p.Resolve(ret)
+    }()
 	return f
 }
 
